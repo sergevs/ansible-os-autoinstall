@@ -1,0 +1,146 @@
+install
+lang en_US.UTF-8
+keyboard us
+auth --useshadow --enablemd5
+services --enabled=network,sshd,snmpd,ntpd
+
+network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes --hostname {{ item }}
+{%- if hostvars[item]['ip'] is defined %}
+ --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --nameserver {{ hostvars[item]['nameservers'][0] }}
+{% else %}
+ --bootproto dhcp
+{% endif %}
+rootpw --iscrypted {{ hostvars[item]['rootpw'] | default('$1$Jxif9H1Q$c5oIEvRdtkSDJs8ZBcRZ3/') }}
+firewall --disabled
+selinux --disabled
+timezone --utc Europe/Moscow
+firstboot --disable
+skipx
+text
+
+ignoredisk --only-use=sda
+bootloader --location=mbr --append="ipv6.disable=1 net.ifnames=0 biosdevname=0"
+zerombr
+clearpart --drives=sda --all
+part swap --asprimary --ondisk=sda --size=1024
+part / --asprimary --fstype=ext4 --ondisk=sda --size=100 --grow
+
+reboot
+
+%packages
+@base
+@core
+@hardware-monitoring
+@system-admin-tools
+net-tools
+net-snmp
+ntp
+screen
+vim-enhanced
+%end
+
+%post --log=/root/ks-post.log
+
+sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults    requiretty|#&|' /etc/sudoers
+
+### DNS settings
+cat << EOF > /etc/resolv.conf
+domain {{ domain }}
+search {{ domain }}
+{% for item in hostvars[item]['nameservers'] %}
+nameserver {{ item }}
+{% endfor %}
+EOF
+
+### disable /etc/resolv.conf rewritting if NM is installed
+[ -f /etc/NetworkManager/NetworkManager.conf ] && echo 'dns=none' >> /etc/NetworkManager/NetworkManager.conf
+
+### creating new /etc/hosts
+cat << EOF > /etc/hosts
+# Do not remove the following line, or various programs
+# that require network functionality will fail
+127.0.0.1 localhost.localdomain localhost
+::1       localhost6.localdomain6 localhost6
+EOF
+
+### grub.conf
+sed -i 's|^splashimage|#&|; s|^hiddenmenu|#&|; s|\(.*/vmlinuz-.*\)|\1 vga=791|; s| rhgb | |; s| quiet | |;' /boot/grub/grub.conf
+sed -i 's|^timeout=.*|timeout=3|' /boot/grub/grub.conf
+
+### disable console inactivity blank
+echo -e '\n## disable console inactivity blank\n/usr/bin/setterm -blank 0' >> /etc/rc.local
+
+### disable 169.254.0.0/16 subnet
+echo 'NOZEROCONF=yes' >> /etc/sysconfig/network
+
+### disable ipv6
+grep -q 'NETWORKING_IPV6' /etc/sysconfig/network || echo 'NETWORKING_IPV6=no' >> /etc/sysconfig/network
+sed 's|NETWORKING_IPV6=yes|NETWORKING_IPV6=no|' -i /etc/sysconfig/network
+
+echo -e "# Disable ipv6\noptions ipv6 disable=1" >> /etc/modprobe.d/disable-ipv6.conf
+
+### tune postfix
+sed -e 's|inet_protocols.*|inet_protocols = ipv4|' -e '1,/^#myhostname =.*/s/^#myhostname =.*/myhostname = {{ ansible_hostname }}\n&/' -i /etc/postfix/main.cf
+echo -e '#Bug 564274 - fake EDAC errors\nblacklist i3200_edac' >> /etc/modprobe.d/blacklist-edac.conf
+
+
+### /etc/sysctl.conf
+cat << EOF >> /etc/sysctl.conf
+# Prevent arp answer on wrong interface
+net.ipv4.conf.all.arp_filter = 1
+net.ipv4.conf.all.arp_ignore = 2
+# disable ipv6
+net.ipv6.conf.all.disable_ipv6 = 1
+EOF
+
+### tune bash
+echo 'HISTCONTROL=ignoreboth' >> /etc/profile
+sed -i 's|^HISTSIZE=.*|HISTSIZE=1000000|' /etc/profile
+
+### enable sudo for wheel and requretty
+sed 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults    requiretty|#&|' -i /etc/sudoers
+
+# noclear console
+sed -i 's|^exec /sbin/mingetty $TTY$|exec /sbin/mingetty --noclear $TTY|' /etc/init/tty.conf
+
+### disable prelink
+[ -f "/etc/sysconfig/prelink" ] && sed -i 's|^PRELINKING=yes$|PRELINKING=no|' /etc/sysconfig/prelink
+
+### bug with disable selinux in install section
+[ -f "/etc/selinux/config" ] && sed 's|^SELINUX=.*|SELINUX=disabled|' -i /etc/selinux/config
+
+### remove fucking limits
+rm -r /etc/security/limits.d/90-nproc.conf 
+
+# repository configuration
+#find  /etc/yum.repos.d/ -type f -exec mv '{}' '{}'.save ';'
+#cat <<'EOF' >/etc/yum.repos.d/Local.repo
+#[os]
+#name=os
+#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/
+#enabled=1
+#
+#[extras]
+#name=os
+#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/extras/x86_64/
+#enabled=1
+#EOF
+
+### create snmp config
+cat << EOF >/etc/snmp/snmpd.conf
+com2sec         notConfigUser  default       public
+group           notConfigGroup v1            notConfigUser
+group           notConfigGroup v2c           notConfigUser
+access          notConfigGroup ""            any  noauth exact systemview none none
+view            systemview     included      .1
+master  agentx
+agentxperms 770 770 daemon daemon
+dontLogTCPWrappersConnects 1
+interface lo 24 1000000000
+EOF
+
+echo 'OPTIONS="-Lsd -Lf /dev/null -p /var/run/snmpd.pid"' >> /etc/sysconfig/snmpd.options
+
+install --mode=700 -d /root/.ssh
+
+%end

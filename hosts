@@ -1,0 +1,75 @@
+# required section, please don't remove
+[boot]
+localhost
+
+[centos]
+centos6  ip=10.0.0.10 osver=6
+centos6-dhcp          osver=6
+centos7  ip=10.0.0.11 osver=7
+
+[fedora]
+fedora21 ip=10.0.0.12 osver=21
+fedora25-dhcp         osver=25
+fedora26 ip=10.0.0.14 osver=26
+
+[fedora:vars]
+menu=fedora
+os=fedora
+
+[centos:vars]
+menu=centos
+os=centos
+
+[debian]
+debian-wheezy ip=10.0.0.20 osver=wheezy
+debian-jessie ip=10.0.0.21 osver=jessie
+
+[debian:vars]
+menu=debian
+os=debian
+
+[ubuntu]
+ubuntu-trusty ip=10.0.0.30 osver=trusty
+ubuntu-xenial ip=10.0.0.31 osver=xenial
+
+[ubuntu:vars]
+menu=ubuntu
+os=ubuntu
+
+[opensuse]
+opensuse12.1 ip=10.0.0.40 osver=12.1
+opensuse13.2 ip=10.0.0.41 osver=13.2
+leap42.3     ip=10.0.0.42 osver=42.3 os=leap
+leap42.3-dhcp             osver=42.3 os=leap
+
+[opensuse:vars]
+menu=opensuse
+os=opensuse
+
+# required section, please don't remove
+[ks:children]
+centos
+fedora
+
+[ks:vars]
+
+# required section, please don't remove
+[preseed:children]
+debian
+ubuntu
+
+[preseed:vars]
+
+# required section, please don't remove
+[yast:children]
+opensuse
+
+[yast:vars]
+
+[all:vars]
+netmask=255.255.255.0
+gateway=10.0.0.1
+domain=thedomain
+nameservers=[ "10.0.0.1", "192.168.3.2" ]
+rootpw=$1$Jxif9H1Q$c5oIEvRdtkSDJs8ZBcRZ3/
+menu=default

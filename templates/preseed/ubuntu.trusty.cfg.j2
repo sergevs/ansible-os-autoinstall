@@ -1,0 +1,117 @@
+d-i debian-installer/locale select en_US.UTF-8 
+#d-i console-tools/archs select at
+d-i console-keymaps-at/keymap select us
+
+# Network config
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_ipaddress string {{ hostvars[item]['ip'] }}
+d-i netcfg/get_netmask string {{ hostvars[item]['netmask'] }}
+d-i netcfg/get_gateway string {{ hostvars[item]['gateway'] }}
+{% for item in hostvars[item]['nameservers'] %}
+d-i netcfg/get_nameservers string {{ item }}
+{% endfor %}
+d-i netcfg/confirm_static boolean true
+d-i netcfg/get_hostname string {{ item }}
+d-i netcfg/get_hostname seen true 
+d-i netcfg/get_domain string {{ hostvars[item]['domain'] }}
+d-i netcfg/get_domain seen true
+
+# Partition Config
+# Let the automatic partitioner set-up the following partitions
+d-i partman-auto/method string regular
+d-i partman-auto/disk string /dev/sda
+d-i partman/mount_style select uuid
+d-i partman/alignment string optimal
+d-i partman/default_filesystem string ext4
+
+# Clear LVM configuration
+d-i partman-auto/purge_lvm_from_device boolean true
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/device_remove_lvm_span boolean true
+
+# Clear MDRAID configuration
+d-i partman-md/device_remove_md boolean true
+
+# Confirm LVM configuration
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+# Confirm MDRAID configuration
+d-i partman-md/confirm boolean true
+d-i partman-md/confirm_nooverwrite boolean true
+
+# Confirm regular configuration
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+# Confirm partition table configuration
+d-i partman/choose_partition select finish
+d-i partman/confirm_write_new_label boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
+
+# Set to true if you want to encrypt the first user's home directory.
+d-i user-setup/encrypt-home boolean false
+
+# Recipe
+d-i partman-auto/choose_recipe select atomic
+
+# Mirror config
+#d-i mirror/codename string trusty
+d-i mirror/protocol string http
+d-i mirror/country string RU
+d-i mirror/http/countries string Russian Federation
+d-i mirror/http/directory string /ubuntu
+#d-i mirror/http/hostname string mirror.yandex.ru
+d-i mirror/http/proxy string
+d-i mirror/http/mirror select CC.archive.ubuntu.com
+
+# Suite to install
+d-i clock-setup/utc boolean false 
+d-i time/zone string Central
+#
+# Repo set-up, squelch pesky security updates until later...
+d-i apt-setup/use_mirror boolean true
+d-i apt-setup/security_host string
+
+d-i apt-setup/non-free boolean true
+d-i apt-setup/contrib boolean false
+d-i apt-setup/source boolean false
+d-i debian-installer/allow_unauthenticated string true
+
+# System config
+tasksel tasksel/first multiselect standard
+d-i pkgsel/include string ssh sudo debconf-utils vim screen
+#Separate /home, /usr, /var, and /tmp partitions
+#d-i pkgsel/include string [package name]
+# Choices: none, safe-upgrade, full-upgrade
+d-i pkgsel/upgrade select none
+d-i pkgsel/update-policy select none
+
+# Root & User config
+d-i passwd/root-login boolean true
+d-i passwd/root-password-crypted password {{ hostvars[item]['rootpw'] | default('$1$Jxif9H1Q$c5oIEvRdtkSDJs8ZBcRZ3/') }}
+# Required regular user
+d-i passwd/user-fullname string The owner
+d-i passwd/username string systemowner
+d-i passwd/user-password-crypted password '!!'
+
+# Grub config
+#grub-pc grub-pc/install_devices multiselect     /dev/sda
+#grub-pc grub-pc/install_devices_disks_changed multiselect 
+
+grub-installer  grub-installer/grub_not_mature_on_this_platform boolean false
+grub-installer  grub-installer/with_other_os  boolean true
+grub-installer  grub-installer/only_debian  boolean true
+grub-installer  grub-installer/make_active  boolean true
+grub-installer  grub-installer/bootdev string /dev/sda
+#d-i grub-installer/with_other_os boolean false
+# Do not participate in usage survey
+popularity-contest popularity-contest/participate boolean false
+
+# Finalize
+finish-install finish-install/reboot_in_progress note
+
+# Get & execute self-installer
+#d-i preseed/late_command string \
+#in-target wget http://<yourhost>/preseed.cmd -O /root/preseed.sh; \
+#in-target /bin/bash /root/preseed.sh

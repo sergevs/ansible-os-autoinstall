@@ -1,0 +1,12 @@
+- name: generate unattended install files for {{ atype }}
+  template: src=templates/{{ atype }}/{{ hostvars[item]['os'] }}.{{ hostvars[item]['osver'] }}.{{ hostvars[item]['type'] | default('') }}cfg.j2 dest={{ ks_dir }}{{ item }}
+  with_items: "{{ groups[atype] }}"
+
+- name: generate pxe files for {{ atype }}
+  local_action: template src=templates/{{ atype }}/pxe.j2 dest={{ playbook_dir }}/workdir/{{ hostvars[item]['menu'] }}/{{ item }}
+  with_items: "{{ groups[atype] }}"
+
+- name: generate efi files for {{ atype }}
+  template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/{{ hostvars[item]['mac'] }}
+  with_items: "{{ groups['atype'] }}"
+  when: hostvars[item]['mac'] is defined

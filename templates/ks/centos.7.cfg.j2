@@ -1,0 +1,106 @@
+install
+lang en_US.UTF-8
+keyboard us
+auth --useshadow --enablemd5
+services --enabled=network,sshd,snmpd,ntpd
+eula --agreed
+
+network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes
+{%- if hostvars[item]['ip'] is defined -%}
+ --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --hostname {{ item }} --nameserver {{ hostvars[item]['nameservers'][0] }}
+{% else %}
+ --bootproto dhcp
+{% endif %}
+rootpw --iscrypted {{ hostvars[item]['rootpw'] | default('$1$Jxif9H1Q$c5oIEvRdtkSDJs8ZBcRZ3/') }}
+firewall --disabled
+selinux --disabled
+timezone --utc Europe/Moscow
+firstboot --disable
+skipx
+text
+
+ignoredisk --only-use=sda
+bootloader --location=mbr --append="ipv6.disable=1 net.ifnames=0 biosdevname=0"
+zerombr
+clearpart --drives=sda --all
+part swap --asprimary --ondisk=sda --size=1024
+part / --asprimary --fstype=xfs --ondisk=sda --size=100 --grow
+
+reboot
+
+%packages
+@base
+@core
+@hardware-monitoring
+@system-admin-tools
+net-tools
+net-snmp
+ntp
+screen
+vim-enhanced
+%end
+
+%post --log=/root/ks-post.log
+sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults    requiretty|#&|' /etc/sudoers
+
+### DNS settings
+cat << EOF > /etc/resolv.conf
+domain {{ domain }}
+search {{ domain }}
+{% for item in hostvars[item]['nameservers'] %}
+nameserver {{ item }}
+{% endfor %}
+EOF
+
+### disable /etc/resolv.conf rewritting if NM is installed
+[ -f /etc/NetworkManager/NetworkManager.conf ] && sed -i '/\[main\]/a dns=none' /etc/NetworkManager/NetworkManager.conf
+
+### creating new /etc/hosts
+cat << EOF > /etc/hosts
+# Do not remove the following line, or various programs
+# that require network functionality will fail
+127.0.0.1 localhost.localdomain localhost
+::1       localhost6.localdomain6 localhost6
+EOF
+
+### ntp.conf
+#mv /etc/ntp.conf /etc/ntp.conf.orig
+#cat << EOF > /etc/ntp.conf
+#restrict default kod nomodify notrap nopeer noquery
+#restrict 127.0.0.1
+#server ntp1
+#server ntp2
+#driftfile /var/lib/ntp/drift
+#keys /etc/ntp/keys
+#EOF
+
+# repository configuration
+#find  /etc/yum.repos.d/ -type f -exec mv '{}' '{}'.save ';'
+#cat <<'EOF' >/etc/yum.repos.d/Local.repo
+#[os]
+#name=os
+#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/
+#enabled=1
+#
+#[extras]
+#name=os
+#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/extras/x86_64/
+#enabled=1
+#EOF
+
+### create snmp config
+cat << EOF >/etc/snmp/snmpd.conf
+com2sec         notConfigUser  default       public
+group           notConfigGroup v1            notConfigUser
+group           notConfigGroup v2c           notConfigUser
+access          notConfigGroup ""            any  noauth exact systemview none none
+view            systemview     included      .1
+master  agentx
+agentxperms 770 770 daemon daemon
+dontLogTCPWrappersConnects 1
+interface lo 24 1000000000
+EOF
+
+install --mode=700 -d /root/.ssh
+
+%end

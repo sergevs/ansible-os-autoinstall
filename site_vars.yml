@@ -1,0 +1,7 @@
+# directroy for kickstart, autoyast, preseed files
+ks_dir: /var/lib/kickstart/
+ks_url: http://10.0.0.1/kickstart/
+menu_dir: /var/lib/tftpboot/pxelinux.cfg/
+efi_dir: /var/lib/tftpboot/efi.cfg/
+
+repo_url: http://mirror.yandex.ru/

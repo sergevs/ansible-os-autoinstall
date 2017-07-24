@@ -1,0 +1,6 @@
+default=0
+#timeout=60
+title {{ item }}
+  root (nd)
+  kernel /{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/vmlinuz repo={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/ ks={{ ks_url }}{{ item }} ksdevice={{ hostvars[item]['netdev'] | default('eth0') }} ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0
+  initrd /{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/initrd.img

@@ -1,0 +1,10 @@
+LABEL {{ item }}
+MENU LABEL {{ item }}
+  ipappend 2
+{% set basepath = repo_url + hostvars[item]['os'] + '/dists/' + hostvars[item]['osver']|string + '/main/installer-amd64/current/images/netboot/' + hostvars[item]['os'] + '-installer/amd64' %}
+  kernel {{ basepath }}/linux
+  append initrd={{ basepath }}/initrd.gz locale=en_US.UTF-8 keymap=us netcfg/get_hostname={{ item }} netcfg/get_domain={{ hostvars[item]['domain'] }} auto url={{ ks_url }}{{ item }} ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0 interface={{ hostvars[item]['netdev'] | default('eth0') }}
+{%- if hostvars[item]['ip'] is defined %}
+ netcfg/disable_dhcp=true netcfg/confirm_static=true netcfg/get_ipaddress={{ hostvars[item]['ip'] }} netcfg/get_netmask={{ hostvars[item]['netmask'] }} netcfg/get_gateway={{ hostvars[item]['gateway'] }} netcfg/get_nameservers={{ hostvars[item]['nameservers'][0] }} 
+{% endif %}
+

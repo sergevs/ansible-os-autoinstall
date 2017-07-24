@@ -1,0 +1,23 @@
+default menu.c32
+MENU TITLE The Menu
+PXERetry 5
+PROMPT 0
+TIMEOUT 85
+
+LABEL bootlocal
+    MENU DEFAULT
+    MENU LABEL Local Boot
+    TEXT HELP
+    This will exit from the network boot menu and attempt
+    to boot from local media (hard disk, DVD, etc)
+    ENDTEXT
+    localboot 0
+
+{% set m ={} %}
+{% for item in groups['ks'] + groups['yast'] + groups['preseed'] -%}
+{% if not hostvars[item]['menu'] in m %}
+menu include pxelinux.cfg/menu.{{ hostvars[item]['menu'] }} {{ hostvars[item]['menu'] }}
+{% set m = { hostvars[item]['menu']:1} %}
+{% endif %}
+{% endfor %}
+

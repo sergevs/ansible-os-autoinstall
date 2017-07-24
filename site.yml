@@ -1,0 +1,35 @@
+---
+- name: setup
+  hosts: boot
+  tasks:
+    - include_vars: site_vars.yml
+      tags:
+      - hosts
+
+    - name: create pxe menu dir
+      file: name={{ menu_dir }} state=directory
+
+    - name: create kickstart dir
+      file: name={{ ks_dir }} state=directory
+
+    - name: create menu workdir
+      local_action: file dest={{ playbook_dir }}/workdir/{{ item  }} state=directory
+      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+
+    - name: install default menu
+      template: src=default.j2  dest={{ menu_dir }}/default
+
+    - include: genfiles.yml
+      with_items:
+        - ks
+        - preseed
+        - yast
+      loop_control:
+        loop_var: atype
+
+    - name: assemble menus
+      assemble: src={{ playbook_dir }}/workdir/{{ item  }} dest={{ menu_dir }}/menu.{{ item }} remote_src=False
+      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+
+    - name: cleanup workdir
+      local_action: file dest={{ playbook_dir }}/workdir state=absent
