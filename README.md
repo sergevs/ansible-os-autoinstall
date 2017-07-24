@@ -66,7 +66,7 @@ If **ip** is not specified, DHCP will be used
 ### OS parameters
 Autoinstall file location and name convention:
 templates/<ks|preseed|yast>/<**os**>.<**osver**>[.**type**].cfg.j2
-as an instance [templates/ks.centos.7.cfg.j2](ks.centos.7.cfg.j2)
+as an instance [ks.centos.7.cfg.j2](templates/ks.centos.7.cfg.j2)
 
 * **os**      : the name of OS
 * **osver**   : OS version
