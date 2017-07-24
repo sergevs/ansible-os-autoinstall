@@ -48,11 +48,10 @@ In the order to perform install you need working PXE boot environment services:
 
 ## Playbook structure
 As the ansible standard book structure appeared to be superfluous for the project it was designed to make a simplified and more convenient directory structure.
-Global configuration variables defined at site_vars.yml
-Auxiliarity book and pxe templates at templates/aux dir
-Templates for autoinstall files at templates/ks , templates/preseed and templates/yast directories.
+Global configuration variables defined at [site_vars.yml](site_vars.yml)
+Templates for autoinstall files at **templates/ks** , **templates/preseed** and **templates/yast** directories.
 
-The configuration implemented using hosts file and customizing autoinstall file.
+The configuration implemented using hosts file and customizing autoinstall files.
 
 ## Host variables
 ### Networking parameters
@@ -60,6 +59,7 @@ If **ip** is not specified, DHCP will be used
 * **ip**      : ip address of the host
 * **netmask** : netmask of network
 * **gateway** : default network gateway
+* **hostname** : inventory host record
 * **domain** : host domain
 * **nameservers** : list of DNS servers
 
