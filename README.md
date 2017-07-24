@@ -21,13 +21,13 @@ Templates for unattended installation included in the playbook:
 
 Other distributions which support kickstart/preseed/autoyast can be easily implemented.
 
-The playbook supports any number of OS configuration so if you have several groups of servers with different configuration you can describe it
+The playbook supports any number of an OS configurations so if you have several groups of servers with different configuration you can describe it
 in separate autoinstall 'receipt' files.
 
 # Caveats
 
 The playbook is not supposed to cover setup for network boot services environment but focused on providing a ‘framework’ for generation autoinstall files for
-various distributions. It also generates pxe boot menus and have a basic functionality to generate EFI file.
+various distributions. It also generates pxe boot menus and have a basic functionality to generate EFI boot files.
 
 In the order to effectively use the playbook for your particular purposes you have to understand the principles of Linux network boot and 
 have a base knowledge about autoinstall files for the required OS: 
@@ -40,9 +40,9 @@ have a base knowledge about autoinstall files for the required OS:
 Ansible version >= 2.2.1.0
 
 In the order to perform install you need working PXE boot environment services:
-dhcpd: network boot ip address configuration
-tftp: pxe/efi image load
-http: serve autoinstall (kickstart/preseed/autoyast) files
+* dhcp: network boot ip address configuration
+* tftp: pxe/efi image serving
+* http: serve autoinstall (kickstart/preseed/autoyast) files
 
 # Description
 
