@@ -81,7 +81,7 @@ A host must belong to at least one of the groups:
 * **preseed** : the group for preseed
 * **yast**    : the group for autoyast
 
-The group used to identify the type of autoinstall used.
+The group is used to identify the type of autoinstall.
 
 # Usage
 
