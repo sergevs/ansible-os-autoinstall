@@ -87,4 +87,46 @@ The group is used to identify the type of autoinstall.
 
     ansible-playbook -i hosts site.yaml
 
-### See also [hosts](hosts), [templates](templates)
+### See also [hosts](hosts)
+
+### An example to setup network boot environment for CentOS 7
+
+    # configure epel release
+    yum install http://mirror.yandex.ru/epel/7/x86_64/e/epel-release-7-10.noarch.rpm
+
+    # install required packages
+    yum install syslinux-tftpboot tftp-server dhcp xinetd nginx 
+
+    # provide minimal dhcp configuration
+    cat <<'EOF' > /etc/dhcp/dhcpd.conf
+    allow unknown-clients;
+    default-lease-time 1800;
+    max-lease-time 7200;
+
+    subnet 10.0.0.0 netmask 255.255.255.0 {
+      range 10.0.0.128 10.0.0.254;
+      option broadcast-address 10.0.0.255;
+      option domain-name-servers 10.0.0.1;
+      option domain-name localdomain;
+      default-lease-time 1800;
+      max-lease-time 7200;
+      option netbios-name-servers 10.0.0.1;
+      option routers 10.0.0.1;
+      next-server 10.0.0.1;
+      filename "gpxelinux.0";
+    }
+    EOF
+
+    # configure nginx to serve autoinstall files
+    cat <<'EOF' >/etc/nginx/default.d/ks.conf                                             
+    location /kickstart {
+    root /var/lib/;
+    }
+    EOF
+  
+    # start services
+    service dhcpd start
+    service xinetd start
+    service nginx start
+    
+
