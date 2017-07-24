@@ -72,7 +72,7 @@ as an instance [centos.7.cfg.j2](templates/ks/centos.7.cfg.j2)
 * **os**      : the name of OS
 * **osver**   : OS version
 * **type**    : a custom variant for installation
-* **rootpw**  : encrypted root password. default is root
+* **rootpw**  : encrypted root password. default password is root
 
 ### Menu parameters
 * **menu**    : all hosts with the same **menu** will be grouped and shown on the second level menu items
