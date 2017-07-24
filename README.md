@@ -91,7 +91,7 @@ The group is used to identify the type of autoinstall.
 
 ### See also [hosts](hosts)
 
-### An example to setup network boot environment for CentOS 7
+### An example to setup network boot services for CentOS 7
 
     # configure epel release
     yum install http://mirror.yandex.ru/epel/7/x86_64/e/epel-release-7-10.noarch.rpm
