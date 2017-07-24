@@ -49,7 +49,7 @@ In the order to perform install you need working PXE boot environment services:
 ## Playbook structure
 As the ansible standard book structure appeared to be superfluous for the project it was designed to make a simplified and more convenient directory structure.
 Global configuration variables defined at [site_vars.yml](site_vars.yml)
-Templates for autoinstall files at **templates/ks** , **templates/preseed** and **templates/yast** directories.
+Templates for autoinstall files at [templates/ks](templates/ks) , [templates/preseed](templates/preseed) and [templates/yast](templates/yast) directories.
 
 The configuration implemented using hosts file and customizing autoinstall files.
 
