@@ -16,8 +16,8 @@ Templates for unattended installation included in the playbook:
 * Fedora 21-26
 * Debian Wheezy, Jessie
 * Ubunty Trusty, Xenial
-* OpenSuse 12.*, 13.*
-* (OpenSuse)Leap 41.*, 42.*
+* OpenSuse 12.\*, 13.\*
+* (OpenSuse)Leap 41.\*, 42.\*
 
 Other distributions which support kickstart/preseed/autoyast can be easily implemented.
 
@@ -86,4 +86,4 @@ The group used to identify the type of autoinstall used.
 
     ansible-playbook -i hosts site.yaml
 
-# See also [hosts](hosts) [templates](templates)
+### See also [hosts](hosts), [templates](templates)
