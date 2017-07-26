@@ -8,5 +8,5 @@
 
 - name: generate efi files for {{ atype }}
   template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/{{ hostvars[item]['mac'] }}
-  with_items: "{{ groups['atype'] }}"
+  with_items: "{{ groups[atype] }}"
   when: hostvars[item]['mac'] is defined
