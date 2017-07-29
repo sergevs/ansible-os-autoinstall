@@ -5,9 +5,9 @@ auth --useshadow --enablemd5
 services --enabled=network,sshd,snmpd,ntpd
 eula --agreed
 
-network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes
-{%- if hostvars[item]['ip'] is defined -%}
- --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --hostname {{ item }} --nameserver {{ hostvars[item]['nameservers'][0] }}
+network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes --hostname {{ item }}
+{%- if hostvars[item]['ip'] is defined %}
+ --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --nameserver {{ hostvars[item]['nameservers'][0] }}
 {% else %}
  --bootproto dhcp
 {% endif %}
@@ -23,8 +23,8 @@ ignoredisk --only-use=sda
 bootloader --location=mbr --append="ipv6.disable=1 net.ifnames=0 biosdevname=0"
 zerombr
 clearpart --drives=sda --all
-part swap --asprimary --ondisk=sda --size=1024
-part / --asprimary --fstype=xfs --ondisk=sda --size=100 --grow
+part swap --asprimary --fstype=swap --ondisk=sda --size=1024
+part /    --asprimary --fstype=xfs  --ondisk=sda --size=100 --grow
 
 reboot
 
@@ -41,6 +41,7 @@ vim-enhanced
 %end
 
 %post --log=/root/ks-post.log
+
 sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults    requiretty|#&|' /etc/sudoers
 
 ### DNS settings
