@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# this script is a wrapper to manage several autoinstall sites/colocations
+
+usage() {
+cat << EOF
+Usage: $0 < site >
+
+Description:
+    The script is auxiliarity helper to run:
+    
+      ansible-playbook -i <site>.hosts -e <site>.site_vars.yml site.yml
+
+    If < site > parameter is not supplied, run:
+
+      ansible-playbook -i hosts site.yml
+
+EOF
+
+exit 1
+}
+
+if [[ -z "$1" ]]; then
+  ansible-playbook -i hosts site.yml
+  exit $?
+fi
+  
+site=$1
+
+( [[ -n "$site" ]] && [[ -f $site.hosts ]] && [[ -f $site.site_vars.yml ]] ) || usage
+
+ansible-playbook -i $site.hosts -e site=$site site.yml

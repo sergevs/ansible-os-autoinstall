@@ -2,7 +2,7 @@
 - name: setup
   hosts: boot
   tasks:
-    - include_vars: site_vars.yml
+    - include_vars: "{% if site is not defined %}site_vars.yml{% else %}{{ site }}.site_vars.yml{% endif %}"
       tags:
       - hosts
 
