@@ -102,5 +102,18 @@ interface lo 24 1000000000
 EOF
 
 install --mode=700 -d /root/.ssh
+install --mode=700 /dev/null /root/.ssh/authorized_keys
+
+{% if hostvars[item]['root_authorized_keys'] is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ hostvars[item]['root_authorized_keys'] }}
+EOF
+{% endif %}
+
+{% if root_authorized_keys is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ root_authorized_keys }}
+EOF
+{% endif %}
 
 %end
