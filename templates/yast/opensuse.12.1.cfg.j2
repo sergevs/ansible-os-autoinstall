@@ -92,7 +92,12 @@
       <pattern>base</pattern>
     </patterns>
     <packages config:type="list">
+      <package>ntp</package>
+      <package>net-snmp</package>
       <package>openssh</package>
+      <package>screen</package>
+      <package>sudo</package>
+      <package>vim</package>
       <package>zypper</package>
     </packages>
   </software>
@@ -133,6 +138,7 @@
         <service>lvm2-lvmetad</service>
         <service>nscd</service>
         <service>ntpd</service>
+        <service>snmpd</service>
         <service>sshd</service>
         <service>purge-kernels</service>
         <service>systemd-readahead-collect</service>
@@ -146,7 +152,7 @@
     <configure_dhcp config:type="boolean">false</configure_dhcp>
     <peers config:type="list">
       <peer>
-        <address>ntp.ocslab.com</address>
+        <address>ntp</address>
         <initial_sync config:type="boolean">true</initial_sync>
         <options></options>
         <type>server</type>
@@ -163,10 +169,38 @@
         <source><![CDATA[
 #!/bin/sh
 
+### create snmp config
+cat << EOF >/etc/snmp/snmpd.conf
+com2sec         notConfigUser  default       public
+group           notConfigGroup v1            notConfigUser
+group           notConfigGroup v2c           notConfigUser
+access          notConfigGroup ""            any  noauth exact systemview none none
+view            systemview     included      .1
+master  agentx
+agentxperms 770 770 daemon daemon
+dontLogTCPWrappersConnects 1
+interface lo 24 1000000000
+EOF
+
+### configure authorized keys
 install --mode=700 -d /root/.ssh
 install --mode=700 /dev/null /root/.ssh/authorized_keys
+
+{% if hostvars[item]['root_authorized_keys'] is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ hostvars[item]['root_authorized_keys'] }}
+EOF
+{% endif %}
+
+{% if root_authorized_keys is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ root_authorized_keys }}
+EOF
+{% endif %}
+
 echo 'PermitRootLogin without-password' >> /etc/ssh/sshd_config
 echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config
+chown -R 600 /etc/ssh
 service sshd reload
 ]]>
         </source>

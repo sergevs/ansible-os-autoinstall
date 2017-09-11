@@ -113,18 +113,18 @@ sed -i 's|^exec /sbin/mingetty $TTY$|exec /sbin/mingetty --noclear $TTY|' /etc/i
 rm -r /etc/security/limits.d/90-nproc.conf 
 
 # repository configuration
-#find  /etc/yum.repos.d/ -type f -exec mv '{}' '{}'.save ';'
-#cat <<'EOF' >/etc/yum.repos.d/Local.repo
-#[os]
-#name=os
-#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/
-#enabled=1
-#
-#[extras]
-#name=os
-#baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/extras/x86_64/
-#enabled=1
-#EOF
+find  /etc/yum.repos.d/ -type f -exec mv '{}' '{}'.save ';'
+cat <<'EOF' >/etc/yum.repos.d/Local.repo
+[os]
+name=os
+baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/
+enabled=1
+
+[extras]
+name=extras
+baseurl={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/extras/x86_64/
+enabled=1
+EOF
 
 ### create snmp config
 cat << EOF >/etc/snmp/snmpd.conf
@@ -142,5 +142,20 @@ EOF
 echo 'OPTIONS="-Lsd -Lf /dev/null -p /var/run/snmpd.pid"' >> /etc/sysconfig/snmpd.options
 
 install --mode=700 -d /root/.ssh
+install --mode=700 /dev/null /root/.ssh/authorized_keys
+
+{% if hostvars[item]['root_authorized_keys'] is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ hostvars[item]['root_authorized_keys'] }}
+EOF
+{% endif %}
+
+{% if root_authorized_keys is defined %}
+cat << 'EOF' >> /root/.ssh/authorized_keys
+{{ root_authorized_keys }}
+EOF
+{% endif %}
+
+yum -y upgrade
 
 %end
