@@ -15,7 +15,7 @@ to make and configure a local mirror for the required OS.
 Templates for unattended installation included in the playbook:
 * CentOS 6-7
 * Fedora 21-26
-* Debian Wheezy, Jessie
+* Debian Wheezy, Jessie, Stretch
 * Ubunty Trusty, Xenial
 * OpenSuse 12.\*, 13.\*
 * (OpenSuse)Leap 41.\*, 42.\*
