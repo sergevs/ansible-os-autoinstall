@@ -38,9 +38,10 @@
   <networking>
     <dns>
       <dhcp_hostname config:type="boolean">false</dhcp_hostname>
-      <dhcp_resolv config:type="boolean">false</dhcp_resolv>
-      <domain>{{ hostvars[item]['domain'] }}</domain>
       <hostname>{{ item }}</hostname>
+      <domain>{{ hostvars[item]['domain'] }}</domain>
+{% if hostvars[item]['ip'] is defined %}
+      <dhcp_resolv config:type="boolean">false</dhcp_resolv>
       <nameservers config:type="list">
 {% for item in hostvars[item]['nameservers'] %}
 	      <nameserver>{{ item }}</nameserver>
@@ -49,6 +50,9 @@
       <searchlist config:type="list">
 	      <search>{{ hostvars[item]['domain'] }}</search>
       </searchlist>
+{% else %}
+      <dhcp_resolv config:type="boolean">true</dhcp_resolv>
+{% endif %}
     </dns>
     <interfaces config:type="list">
       <interface>
