@@ -23,6 +23,7 @@ os=centos
 [debian]
 debian-wheezy ip=10.0.0.20 osver=wheezy
 debian-jessie ip=10.0.0.21 osver=jessie
+debian-stretch ip=10.0.0.22 osver=stretch
 
 [debian:vars]
 menu=debian
