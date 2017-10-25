@@ -4,6 +4,7 @@ d-i console-keymaps-at/keymap select us
 
 # Network config
 d-i netcfg/choose_interface select auto
+{% if hostvars[item]['ip'] is defined %}
 d-i netcfg/disable_dhcp boolean true
 d-i netcfg/confirm_static boolean true
 d-i netcfg/get_ipaddress string {{ hostvars[item]['ip'] }}
@@ -16,6 +17,10 @@ d-i netcfg/get_hostname string {{ item }}
 d-i netcfg/get_hostname seen true 
 d-i netcfg/get_domain string {{ hostvars[item]['domain'] }}
 d-i netcfg/get_domain seen true
+{% else %}
+d-i netcfg/disable_dhcp boolean false
+{% endif %}
+
 
 # Partition Config
 # Let the automatic partitioner set-up the following partitions
