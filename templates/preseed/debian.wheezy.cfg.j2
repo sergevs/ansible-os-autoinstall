@@ -26,7 +26,7 @@ d-i netcfg/disable_dhcp boolean false
 # Let the automatic partitioner set-up the following partitions
 # Method
 d-i partman-auto/method string regular
-d-i partman-auto/disk string /dev/sda
+d-i partman-auto/disk string /dev/{{ hostvars[item]['drive'] | default('sda') }}
 d-i partman/mount_style select uuid
 d-i partman/alignment string optimal
 d-i partman/default_filesystem string ext4
