@@ -63,6 +63,8 @@ If **ip** is not specified, DHCP will be used
 * **hostname** : inventory host record
 * **domain** : host domain
 * **nameservers** : list of DNS servers
+* **netargs** : additional parameters to configure network. as an example for kickstart bonding: **netargs='--bondopts=miimon=100,mode=1 --bondslaves=eth0,eth1'**
+* **bootargs** : additional boot parameters. as for previous example it's required to add: **bootargs='linux bond=bond0:eth0,eth1:mode=1'**
 
 ### OS parameters
 Autoinstall file location and name convention:
@@ -89,7 +91,7 @@ The group is used to identify the type of autoinstall.
 
     ansible-playbook -i hosts site.yaml
 
-### See also [hosts](hosts)
+### See also example [hosts](hosts.example)
 
 ### An example to setup network boot services for CentOS 7
 

@@ -6,5 +6,5 @@ MENU LABEL {{ item }}
 {% set basepath = repo_url + 'opensuse/distribution/leap/' + hostvars[item]['osver']|string + '/repo/oss' %}
 {% endif %}
   kernel {{ basepath }}/boot/x86_64/loader/linux
-  append initrd={{ basepath }}/boot/x86_64/loader/initrd install={{ basepath }} autoyast={{ ks_url }}{{ item }} ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0 textmode=1
+  append initrd={{ basepath }}/boot/x86_64/loader/initrd install={{ basepath }} autoyast={{ ks_url }}{{ item }} hostvars[item]['bootargs'] | default('vga=791') textmode=1
 

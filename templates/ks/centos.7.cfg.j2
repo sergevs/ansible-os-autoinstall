@@ -5,7 +5,7 @@ auth --useshadow --enablemd5
 services --enabled=network,sshd,snmpd,ntpd
 eula --agreed
 
-network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes --hostname {{ item }}
+network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes --hostname {{ item }} {{ hostvars[item]['netargs'] | default('') }}
 {%- if hostvars[item]['ip'] is defined %}
  --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --nameserver {{ hostvars[item]['nameservers'][0] }}
 {% else %}

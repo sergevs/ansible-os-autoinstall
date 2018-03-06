@@ -53,6 +53,7 @@ centos
 fedora
 
 [ks:vars]
+bootargs='ksdevice=bootif ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0'
 
 # required section, please don't remove
 [preseed:children]
@@ -60,12 +61,14 @@ debian
 ubuntu
 
 [preseed:vars]
+bootargs='ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0'
 
 # required section, please don't remove
 [yast:children]
 opensuse
 
 [yast:vars]
+bootargs='ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0'
 
 [all:vars]
 netmask=255.255.255.0

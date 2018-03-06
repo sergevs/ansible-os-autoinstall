@@ -57,7 +57,7 @@
     <interfaces config:type="list">
       <interface>
         <name>Ethernet Network Card</name>
-        <device>{{ hostvars[item]['netdev']|default('eth0') }}</device>
+        <device>{{ hostvars[item]['netdev'] | default('eth0') }}</device>
         <startmode>onboot</startmode>
         <usercontrol>no</usercontrol>
 {% if hostvars[item]['ip'] is defined %}

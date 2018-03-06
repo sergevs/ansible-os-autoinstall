@@ -17,7 +17,7 @@
       with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
 
     - name: install default menu
-      template: src=default.j2  dest={{ menu_dir }}/default
+      template: src=templates/default.j2 dest={{ menu_dir }}/default
 
     - include: genfiles.yml
       with_items:

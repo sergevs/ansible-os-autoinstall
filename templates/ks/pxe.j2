@@ -6,4 +6,5 @@ MENU LABEL {{ item }}
 {% set basepath = repo_url + hostvars[item]['os'] + '/linux/releases/' + hostvars[item]['osver']|string + '/Server/x86_64/os' %}
 {% endif %}
   kernel {{ basepath }}/images/pxeboot/vmlinuz
-  append initrd={{ basepath }}/images/pxeboot/initrd.img repo={{ basepath }}/ ks={{ ks_url }}{{ item }} ksdevice=bootif ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0
+  append initrd={{ basepath }}/images/pxeboot/initrd.img repo={{ basepath }}/ ks={{ ks_url }}{{ item }} {{ hostvars[item]['bootargs'] | default('ksdevice=bootif vga=791') }}
+
