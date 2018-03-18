@@ -5,12 +5,16 @@ auth --useshadow --enablemd5
 services --enabled=network,sshd,snmpd,ntpd
 eula --agreed
 
-network --device={{ hostvars[item]['netdev'] | default('eth0') }} --noipv6 --onboot yes --hostname {{ item }} {{ hostvars[item]['netargs'] | default('') }}
+network --device={{ hostvars[item]['netdev'] | default('eth0') }} --onboot=yes --hostname={{ item }} {{ hostvars[item]['netargs'] | default('') }}
 {%- if hostvars[item]['ip'] is defined %}
- --bootproto static --ip {{ hostvars[item]['ip'] }} --netmask {{ hostvars[item]['netmask'] }} --gateway {{ hostvars[item]['gateway'] }} --nameserver {{ hostvars[item]['nameservers'][0] }}
+ --bootproto=static --ip={{ hostvars[item]['ip'] }} --netmask={{ hostvars[item]['netmask'] }} --gateway={{ hostvars[item]['gateway'] }} --nameserver=
+{%- for ns in hostvars[item]['nameservers'] %}
+{{ ns }}{% if not loop.last %},{% endif %}
+{%- endfor %}
 {% else %}
- --bootproto dhcp
+ --bootproto=dhcp
 {% endif %}
+
 rootpw --iscrypted {{ hostvars[item]['rootpw'] | default('$1$Jxif9H1Q$c5oIEvRdtkSDJs8ZBcRZ3/') }}
 firewall --disabled
 selinux --disabled
@@ -19,12 +23,12 @@ firstboot --disable
 skipx
 text
 
-ignoredisk --only-use=sda
+ignoredisk --only-use={{ hostvars[item]['drive'] | default('sda') }}
 bootloader --location=mbr --append="ipv6.disable=1 net.ifnames=0 biosdevname=0"
 zerombr
-clearpart --drives=sda --all
-part swap --asprimary --fstype=swap --ondisk=sda --size=1024
-part /    --asprimary --fstype=xfs  --ondisk=sda --size=100 --grow
+clearpart --drives={{ hostvars[item]['drive'] | default('sda') }} --all
+part swap --asprimary --fstype=swap --ondisk={{ hostvars[item]['drive'] | default('sda') }} --size=1024
+part /    --asprimary --fstype=xfs  --ondisk={{ hostvars[item]['drive'] | default('sda') }} --size=1024 --grow
 
 reboot
 
