@@ -1,0 +1,3 @@
+- name: generate unattended install files for {{ atype }}
+  template: src=templates/{{ atype }}/{{ hostvars[item]['os'] }}.{{ hostvars[item]['osver'] }}.{{ hostvars[item]['type'] | default('') }}cfg.j2 dest={{ ks_dir }}{{ item }}
+  with_items: "{{ groups[atype] }}"

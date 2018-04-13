@@ -5,3 +5,9 @@ menu_dir: /var/lib/tftpboot/pxelinux.cfg/
 efi_dir: /var/lib/tftpboot/efi.cfg/
 
 repo_url: http://mirror.yandex.ru/
+
+# supported types of autoinstall, please do not remove
+dtypes:
+  - ks
+  - preseed
+  - yast

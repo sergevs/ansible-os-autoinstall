@@ -1,6 +1,12 @@
+# host for pxe & efi boot files & menus
 # required section, please don't remove
 [boot]
 localhost
+
+# host for kickstart files
+# required section, please don't remove
+[kickstart:children]
+boot
 
 [centos]
 centos6  ip=10.0.0.10 osver=6
@@ -53,6 +59,7 @@ centos
 fedora
 
 [ks:vars]
+netargs='--noipv6'
 bootargs='ksdevice=bootif ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0'
 
 # required section, please don't remove

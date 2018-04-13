@@ -1,5 +1,5 @@
 ---
-- name: setup
+- name: setup pxe
   hosts: boot
   tasks:
     - include_vars: "{% if site is not defined %}site_vars.yml{% else %}{{ site }}.site_vars.yml{% endif %}"
@@ -9,27 +9,34 @@
     - name: create pxe menu dir
       file: name={{ menu_dir }} state=directory
 
-    - name: create kickstart dir
-      file: name={{ ks_dir }} state=directory
-
-    - name: create menu workdir
-      local_action: file dest={{ playbook_dir }}/workdir/{{ item  }} state=directory
-      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
-
     - name: install default menu
       template: src=templates/default.j2 dest={{ menu_dir }}/default
 
-    - include: genfiles.yml
-      with_items:
-        - ks
-        - preseed
-        - yast
+    - name: create pxe menu workdir
+      local_action: file dest={{ playbook_dir }}/workdir/{{ item  }} state=directory
+      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+      run_once: true
+
+    - include: gen_pxe_files.yml
+      with_items: "{{ dtypes }}"
       loop_control:
         loop_var: atype
 
     - name: assemble menus
-      assemble: src={{ playbook_dir }}/workdir/{{ item  }} dest={{ menu_dir }}/menu.{{ item }} remote_src=False
+      assemble: src={{ playbook_dir }}/workdir/{{ item }} dest={{ menu_dir }}/menu.{{ item }} remote_src=False
       with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
 
     - name: cleanup workdir
       local_action: file dest={{ playbook_dir }}/workdir state=absent
+      run_once: true
+
+- name: setup kickstart, preseed, autoyast files
+  hosts: kickstart
+  tasks:
+    - name: create kickstart dir
+      file: name={{ ks_dir }} state=directory
+
+    - include: gen_ks_files.yml
+      with_items: "{{ dtypes }}"
+      loop_control:
+        loop_var: atype
