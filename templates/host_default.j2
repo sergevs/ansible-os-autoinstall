@@ -1,0 +1,16 @@
+UI menu.c32
+MENU TITLE Host Menu
+PXERetry 5
+PROMPT 0
+{% if host_menu|default('') == "pxe" %}
+DEFAULT  {{ item }}
+{% endif %}
+TIMEOUT {{ menu_timeout |default(0) }}
+LABEL bootlocal
+  MENU LABEL Local Boot
+  TEXT HELP
+  This will exit from the network boot menu and attempt
+  to boot from local media (hard disk, DVD, etc)
+  ENDTEXT
+  localboot 0
+

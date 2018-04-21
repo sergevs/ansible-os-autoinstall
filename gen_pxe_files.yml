@@ -1,9 +1,15 @@
 - name: generate pxe files for {{ atype }}
   local_action: template src=templates/{{ atype }}/pxe.j2 dest={{ playbook_dir }}/workdir/{{ hostvars[item]['menu'] }}/{{ item }}
   with_items: "{{ groups[atype] }}"
+  when: hostvars[item]['mac'] is not defined
   run_once: true
 
+- name: generate pxe files for {{ atype }}
+  template: src=templates/{{ atype }}/pxe.j2 dest={{ menu_dir }}/01-{{ hostvars[item]['mac']|regex_replace(':','-')|lower }}
+  with_items: "{{ groups[atype] }}"
+  when: hostvars[item]['mac'] is defined
+
 - name: generate efi files for {{ atype }}
-  template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/{{ hostvars[item]['mac'] }}
+  template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/01-{{ hostvars[item]['mac']|regex_replace(':','-')|upper }}
   with_items: "{{ groups[atype] }}"
   when: hostvars[item]['mac'] is defined

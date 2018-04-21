@@ -58,6 +58,7 @@ The configuration implemented using hosts file and customizing autoinstall files
 ### Networking parameters
 If **ip** is not specified, DHCP will be used
 * **ip**      : ip address of the host
+* **mac**     : mac address of the interface. if supplied, the host will not be shown in default menu but only menu for host will be displayed
 * **netmask** : netmask of network
 * **gateway** : default network gateway
 * **hostname** : inventory host record

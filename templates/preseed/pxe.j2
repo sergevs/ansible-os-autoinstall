@@ -1,3 +1,6 @@
+{% if hostvars[item]['mac'] is defined %}
+{% include "templates/host_default.j2" %}
+{% endif %}
 LABEL {{ item }}
 MENU LABEL {{ item }}
   ipappend 2

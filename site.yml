@@ -6,8 +6,11 @@
       tags:
       - hosts
 
-    - name: create pxe menu dir
-      file: name={{ menu_dir }} state=directory
+    - name: create pxe & efi dir
+      file: name={{ item }} state=directory
+      with_items:
+        - "{{ menu_dir }}"
+        - "{{ efi_dir }}"
 
     - name: install default menu
       template: src=templates/default.j2 dest={{ menu_dir }}/default

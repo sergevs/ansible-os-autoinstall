@@ -1,9 +1,18 @@
+# menu timeout, 0 is to disable timeout
+menu_timeout: 0
+
+# host menu default, "pxe" mean default to pxe menu boot
+host_menu: localboot
+
 # directroy for kickstart, autoyast, preseed files
 ks_dir: /var/lib/kickstart/
-ks_url: http://10.0.0.1/kickstart/
 menu_dir: /var/lib/tftpboot/pxelinux.cfg/
 efi_dir: /var/lib/tftpboot/efi.cfg/
 
+# the url from which kickstart files will be served
+ks_url: http://10.0.0.1/kickstart/
+
+# the url for repository, yandex has many distribution and the playbook is designed for it's structure
 repo_url: http://mirror.yandex.ru/
 
 # supported types of autoinstall, please do not remove
