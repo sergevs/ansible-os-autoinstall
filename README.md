@@ -95,7 +95,7 @@ The group is used to identify the type of autoinstall.
 
     ansible-playbook -i hosts site.yaml
 
-### See also example [hosts](hosts)
+### See also example [hosts](hosts) & [site_vars.yml](site_vars.yml)
 
 ### An example to setup network boot services for CentOS 7
 
