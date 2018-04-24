@@ -1,0 +1,9 @@
+{% include "templates/host_default_grub2efi.j2" %}
+
+{% for mitem in (groups['ks'] + groups['yast'] + groups['preseed'])|map('extract', hostvars, 'menu')|unique|list -%}
+submenu '{{ mitem }} ->>' {
+{% include "workdir/" + mitem + "-grub2efi/menu." + mitem %}
+
+}
+
+{% endfor %}

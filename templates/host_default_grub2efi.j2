@@ -1,0 +1,25 @@
+insmod net
+insmod efi_gop
+insmod efi_uga
+insmod efinet
+insmod video_bochs
+insmod video_cirrus
+insmod all_video
+insmod gzio
+insmod ext2
+insmod part_gpt
+insmod http
+
+set gfxpayload=keep
+
+{% if item is defined and host_menu|default('') == "pxe" %}
+set default=1
+{% endif %}
+set timeout={% if menu_timeout|default(-1) == 0 %}-1{% else %} {{ menu_timeout }} {% endif %}
+
+set net_default_server={{ repo_url.rpartition('//')[2].split(':')[0].split('/')[0] }}
+
+menuentry 'Local Boot' --class fedora --class gnu-linux --class gnu --class os {
+  exit
+}
+

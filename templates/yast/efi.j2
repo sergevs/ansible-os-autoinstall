@@ -1,0 +1,11 @@
+{% if hostvars[item]['mac'] is defined %}
+{% include "templates/host_default_grub2efi.j2" %}
+{% endif %}
+  menuentry '{{ item }}' --class gnu-linux --class gnu --class os {
+{% set basepath = hostvars[item]['os'] + '/distribution/' + hostvars[item]['osver']|string + '/repo/oss' %}
+{% if hostvars[item]['os'] == 'leap' %}
+{% set basepath = 'opensuse/distribution/leap/' + hostvars[item]['osver']|string + '/repo/oss' %}
+{% endif %}
+    linuxefi (http)/{{ basepath }}/boot/x86_64/loader/linux install={{ basepath }} autoyast={{ ks_url }}{{ item }} {{ hostvars[item]['bootargs'] | default('vga=791') }} textmode=1
+    initrdefi (http)/{{ basepath }}/boot/x86_64/loader/initrd
+}

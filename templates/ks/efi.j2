@@ -1,6 +1,11 @@
-default=0
-#timeout=60
-title {{ item }}
-  root (nd)
-  kernel /{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/vmlinuz repo={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/ ks={{ ks_url }}{{ item }} ksdevice={{ hostvars[item]['netdev'] | default('eth0') }} ipv6.disable=1 vga=791 net.ifnames=0 biosdevname=0
-  initrd /{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/initrd.img
+{% if hostvars[item]['mac'] is defined %}
+{% include "templates/host_default_grub2efi.j2" %}
+{% endif %}
+  menuentry '{{ item }}' --class fedora --class gnu-linux --class gnu --class os {
+{% set basepath = hostvars[item]['os'] + '/' + hostvars[item]['osver']|string + '/os/x86_64' %}
+{% if hostvars[item]['os'] == 'fedora' %}
+{% set basepath = hostvars[item]['os'] + '/linux/releases/' + hostvars[item]['osver']|string + '/Server/x86_64/os' %}
+{% endif %}
+    linuxefi (http)/{{ basepath }}/images/pxeboot/vmlinuz repo={{ repo_url }}{{ hostvars[item]['os'] }}/{{ hostvars[item]['osver'] }}/os/x86_64/ ks={{ ks_url }}{{ item }} ksdevice={{ hostvars[item]['netdev'] | default('eth0') }} {{ hostvars[item]['bootargs'] | default('vga=791') }}
+    initrdefi (http)/{{ basepath }}/images/pxeboot/initrd.img
+}

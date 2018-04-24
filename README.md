@@ -14,13 +14,16 @@ to make and configure a local mirror for the required OS.
 
 Templates for unattended installation included in the playbook:
 * CentOS 6-7
-* Fedora 21-26
+* Fedora 24-26
 * Debian Wheezy, Jessie, Stretch
 * Ubunty Trusty, Xenial
 * OpenSuse 12.\*, 13.\*
-* (OpenSuse)Leap 41.\*, 42.\*
+* (OpenSuse)Leap 41.\*, 42.\*, 15.0
 
 Other distributions which support kickstart/preseed/autoyast can be easily added.
+
+The playbook generates pxe boot and EFI grub menu files, so if you setup pxe boot environment(briefly described at the end) you'll have a convenient way to
+manage servers installation.
 
 The playbook supports any number of an OS configurations so if you have several groups of servers with different configuration 
 you can describe it in separate autoinstall 'receipt' files.
@@ -28,7 +31,7 @@ you can describe it in separate autoinstall 'receipt' files.
 # Caveats
 
 The playbook is not supposed to cover setup for network boot services environment but focused on providing a ‘framework’ 
-for generation autoinstall files for various distributions. It also generates pxe boot menus and have a basic functionality to generate EFI boot files.
+for generation autoinstall files for various distributions.
 
 In the order to effectively use the playbook for your particular purposes you have to understand the principles of Linux network boot
 and have a base knowledge about autoinstall files for the required OS: 
@@ -92,7 +95,7 @@ The group is used to identify the type of autoinstall.
 
     ansible-playbook -i hosts site.yaml
 
-### See also example [hosts](hosts.example)
+### See also example [hosts](hosts)
 
 ### An example to setup network boot services for CentOS 7
 
@@ -102,11 +105,17 @@ The group is used to identify the type of autoinstall.
     # install required packages
     yum install syslinux-tftpboot tftp-server dhcp xinetd nginx 
 
+    # if you are going to use UEFI boot, you need to put grub2 efi loader, as an instance
+    mkdir -p /var/lib/tftpboot/efi.cfg
+    curl https://mirror.yandex.ru/centos/7/os/x86_64/EFI/BOOT/grubx64.efi > /var/lib/tftpboot/efi.cfg/grubx64.efi 
+
     # provide minimal dhcp configuration
     cat <<'EOF' > /etc/dhcp/dhcpd.conf
     allow unknown-clients;
     default-lease-time 1800;
     max-lease-time 7200;
+    option arch code 93 = unsigned integer 16; # RFC4578
+    set pxetype = option arch;
 
     subnet 10.0.0.0 netmask 255.255.255.0 {
       range 10.0.0.128 10.0.0.254;
@@ -118,7 +127,14 @@ The group is used to identify the type of autoinstall.
       option netbios-name-servers 10.0.0.1;
       option routers 10.0.0.1;
       next-server 10.0.0.1;
-      filename "gpxelinux.0";
+      class "pxeclients" {
+        match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";
+        if pxetype=00:09 or pxetype=00:07 {
+          filename "efi.cfg/grubx64.efi";
+        } else {
+          filename "gpxelinux.0";
+        }
+      }
     }
     EOF
 

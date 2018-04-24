@@ -1,0 +1,11 @@
+{% if hostvars[item]['mac'] is defined %}
+{% include "templates/host_default_grub2efi.j2" %}
+{% endif %}
+  menuentry '{{ item }}' --class gnu-linux --class gnu --class os {
+{% set basepath = hostvars[item]['os'] + '/dists/' + hostvars[item]['osver']|string + '/main/installer-amd64/current/images/netboot/' + hostvars[item]['os'] + '-installer/amd64' %}
+    linuxefi (http)/{{ basepath }}/linux locale=en_US.UTF-8 keymap=us netcfg/get_hostname={{ item }} netcfg/get_domain={{ hostvars[item]['domain'] }} auto url={{ ks_url }}{{ item }} {{ hostvars[item]['bootargs'] | default('vga=791') }} interface={{ hostvars[item]['netdev'] | default('eth0') }}
+{%- if hostvars[item]['ip'] is defined %}
+ netcfg/disable_dhcp=true netcfg/confirm_static=true netcfg/get_ipaddress={{ hostvars[item]['ip'] }} netcfg/get_netmask={{ hostvars[item]['netmask'] }} netcfg/get_gateway={{ hostvars[item]['gateway'] }} netcfg/get_nameservers={{ hostvars[item]['nameservers'][0] }}
+{% endif %}
+    initrdefi (http)/{{ basepath }}/initrd.gz
+}

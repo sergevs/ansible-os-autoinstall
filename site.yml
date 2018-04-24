@@ -12,11 +12,13 @@
         - "{{ menu_dir }}"
         - "{{ efi_dir }}"
 
-    - name: install default menu
-      template: src=templates/default.j2 dest={{ menu_dir }}/default
-
     - name: create pxe menu workdir
       local_action: file dest={{ playbook_dir }}/workdir/{{ item  }} state=directory
+      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+      run_once: true
+
+    - name: create efi menu workdir
+      local_action: file dest={{ playbook_dir }}/workdir/{{ item  }}-grub2efi state=directory
       with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
       run_once: true
 
@@ -25,9 +27,19 @@
       loop_control:
         loop_var: atype
 
-    - name: assemble menus
+    - name: assemble pxe menus
       assemble: src={{ playbook_dir }}/workdir/{{ item }} dest={{ menu_dir }}/menu.{{ item }} remote_src=False
       with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+
+    - name: install default pxe menu
+      template: src=templates/default.j2 dest={{ menu_dir }}/default
+
+    - name: assemble efi menus
+      local_action: assemble src={{ playbook_dir }}/workdir/{{ item }}-grub2efi dest={{ playbook_dir }}/workdir/{{ item }}-grub2efi/menu.{{ item }} remote_src=False
+      with_items: "{{ (groups['ks'] + groups['preseed'] + groups['yast'])|map('extract', hostvars, 'menu')|unique|list }}"
+
+    - name: install default efi menu
+      template: src=templates/default_grub2efi.j2 dest={{ efi_dir }}/grub.cfg
 
     - name: cleanup workdir
       local_action: file dest={{ playbook_dir }}/workdir state=absent

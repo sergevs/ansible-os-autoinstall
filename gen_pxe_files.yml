@@ -9,7 +9,13 @@
   with_items: "{{ groups[atype] }}"
   when: hostvars[item]['mac'] is defined
 
+- name: generate efi for {{ atype }}
+  local_action: template src=templates/{{ atype }}/efi.j2 dest={{ playbook_dir }}/workdir/{{ hostvars[item]['menu'] }}-grub2efi/{{ item }}
+  with_items: "{{ groups[atype] }}"
+  when: hostvars[item]['mac'] is not defined
+  run_once: true
+
 - name: generate efi files for {{ atype }}
-  template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/01-{{ hostvars[item]['mac']|regex_replace(':','-')|upper }}
+  template: src=templates/{{ atype }}/efi.j2 dest={{ efi_dir }}/grub.cfg-01-{{ hostvars[item]['mac']|regex_replace(':','-')|lower }}-
   with_items: "{{ groups[atype] }}"
   when: hostvars[item]['mac'] is defined

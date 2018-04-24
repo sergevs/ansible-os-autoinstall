@@ -2,7 +2,7 @@ UI menu.c32
 MENU TITLE Host Menu
 PXERetry 5
 PROMPT 0
-{% if host_menu|default('') == "pxe" %}
+{% if item is defined and host_menu|default('') == "pxe" %}
 DEFAULT  {{ item }}
 {% endif %}
 TIMEOUT {{ menu_timeout |default(0) }}

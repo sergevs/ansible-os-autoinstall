@@ -14,7 +14,7 @@ centos6-dhcp          osver=6
 centos7  ip=10.0.0.11 osver=7
 
 [fedora]
-fedora21 ip=10.0.0.12 osver=21
+fedora24 ip=10.0.0.12 osver=24
 fedora25-dhcp         osver=25
 fedora26 ip=10.0.0.14 osver=26
 
@@ -48,6 +48,8 @@ opensuse12.1 ip=10.0.0.40 osver=12.1
 opensuse13.2 ip=10.0.0.41 osver=13.2
 leap42.3     ip=10.0.0.42 osver=42.3 os=leap
 leap42.3-dhcp             osver=42.3 os=leap
+leap15.0     ip=10.0.0.44 osver=15.0 os=leap
+leap15.0-dhcp             osver=15.0 os=leap
 
 [opensuse:vars]
 menu=opensuse
