@@ -16,7 +16,7 @@ Templates for unattended installation included in the playbook:
 * CentOS 6-7
 * Fedora 24-26
 * Debian Wheezy, Jessie, Stretch
-* Ubunty Trusty, Xenial
+* Ubunty Trusty, Xenial, Bionic
 * OpenSuse 12.\*, 13.\*
 * (OpenSuse)Leap 41.\*, 42.\*, 15.0
 

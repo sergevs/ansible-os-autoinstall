@@ -38,6 +38,7 @@ os=debian
 [ubuntu]
 ubuntu-trusty ip=10.0.0.30 osver=trusty
 ubuntu-xenial ip=10.0.0.31 osver=xenial
+ubuntu-bionic ip=10.0.0.32 osver=bionic
 
 [ubuntu:vars]
 menu=ubuntu

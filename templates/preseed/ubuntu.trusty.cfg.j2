@@ -111,6 +111,13 @@ popularity-contest popularity-contest/participate boolean false
 # Finalize
 finish-install finish-install/reboot_in_progress note
 
+{% if hostvars[item]['root_authorized_keys'] is defined %}
+d-i preseed/late_command string \
+in-target install --mode=700 -d /root/.ssh; \
+in-target install --mode=700 /dev/null /root/.ssh/authorized_keys; \
+in-target bash -c 'echo "{{ hostvars[item]['root_authorized_keys'] }}" >> /root/.ssh/authorized_keys'
+{% endif %}
+
 # Get & execute self-installer
 #d-i preseed/late_command string \
 #in-target wget http://<yourhost>/preseed.cmd -O /root/preseed.sh; \
