@@ -1,0 +1,31 @@
+allow unknown-clients;
+default-lease-time 1800;
+max-lease-time 7200;
+option arch code 93 = unsigned integer 16; # RFC4578
+set pxetype = option arch;
+
+{%- for subnet in subnets %} 
+{% set addr1 = subnet | ipaddr('1') | ipaddr('address') %}
+{% set range1 = subnet | ipaddr('128') | ipaddr('address') %}
+{% set range2 = subnet | ipaddr('254') | ipaddr('address') %}
+
+subnet {{ subnet | ipaddr('network') }} netmask {{ subnet | ipaddr('netmask') }} {
+    range {{ range1 }} {{ range2 }};
+    option broadcast-address {{ subnet | ipaddr('broadcast') }};
+    option domain-name-servers {{ addr1 }};
+    option domain-name localdomain;
+    default-lease-time 1800;
+    max-lease-time 7200;
+    option netbios-name-servers {{ addr1 }};
+    option routers {{ addr1 }};
+    next-server {{ addr1 }};
+    class "pxeclients" {
+        match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";
+        if pxetype=00:09 or pxetype=00:07 {
+            filename "efi.cfg/grubx64.efi";
+        } else {
+            filename "gpxelinux.0";
+        }
+    }
+}
+{%- endfor %}

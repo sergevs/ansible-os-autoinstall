@@ -1,7 +1,7 @@
 # host for pxe & efi boot files & menus
 # required section, please don't remove
 [boot]
-localhost
+centos7.etomer.lab ansible_user=root
 
 # host for kickstart files
 # required section, please don't remove
