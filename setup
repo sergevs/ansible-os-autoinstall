@@ -26,7 +26,8 @@ if [[ -z "$1" ]]; then
 fi
   
 site=$1
+shift
 
 ( [[ -n "$site" ]] && [[ -f $site.hosts ]] && [[ -f $site.site_vars.yml ]] ) || usage
 
-ansible-playbook -i $site.hosts -e site=$site site.yml
+ansible-playbook -i $site.hosts -e site=$site "$@" site.yml
