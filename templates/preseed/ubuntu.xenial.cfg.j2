@@ -110,7 +110,7 @@ grub-installer  grub-installer/grub_not_mature_on_this_platform boolean false
 grub-installer  grub-installer/with_other_os  boolean true
 grub-installer  grub-installer/only_debian  boolean true
 grub-installer  grub-installer/make_active  boolean true
-grub-installer  grub-installer/bootdev string /dev/sda
+grub-installer  grub-installer/bootdev string  /dev/{{ hostvars[item]['drive'] | default('sda') }}
 #d-i grub-installer/with_other_os boolean false
 # Do not participate in usage survey
 popularity-contest popularity-contest/participate boolean false
