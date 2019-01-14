@@ -74,6 +74,7 @@ Autoinstall file location and name convention:
 templates/<ks|preseed|yast>/<**os**>.<**osver**>[.**type**].cfg.j2
 as an instance [centos.7.cfg.j2](templates/ks/centos.7.cfg.j2)
 
+* **drive**   : block device to use for partition excluding /dev/ ( sda | hda | vda ). Default: **sda**
 * **os**      : the name of OS
 * **osver**   : OS version
 * **type**    : a custom variant for installation
