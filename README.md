@@ -1,6 +1,6 @@
 # Ansible for OS autoinstall
 
-# Ovewrview
+# Overview
 
 The project goal is to provide a flexible and as simple as possible configuration tool for unattended OS installation via network for various linux distributions. 
 It was designed to setup dozen of production and other servers and can be used by professional system administrators or for development/testing/education purposes.
