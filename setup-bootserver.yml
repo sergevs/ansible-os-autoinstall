@@ -1,0 +1,42 @@
+---
+- hosts: boot
+  become: true
+  vars:
+    subnets:
+      - 192.168.122.0/24
+      - 192.168.123.0/24
+    packages:
+      - syslinux-tftpboot 
+      - tftp-server 
+      - dhcp
+      - xinetd 
+      - nginx 
+    services:
+      - dhcpd
+      - xinetd
+      - nginx 
+    # if you are going to use UEFI boot, you need to put grub2 efi loader, as an instance
+  tasks:
+    - yum:
+        name: "http://ftp.wrz.de/pub/fedora-epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm"
+    - yum:
+        update_cache: yes
+        name: "{{ packages }}"
+      with_items:
+          "{{ packages }}"
+    - file: 
+        path: /var/lib/tftpboot/efi.cfg 
+        state: directory
+    - template:
+        src: templates/boot/dhcpd.conf.j2
+        dest: /etc/dhcp/dhcpd.conf
+    - get_url: 
+        url: https://mirror.yandex.ru/centos/7/os/x86_64/EFI/BOOT/grubx64.efi 
+        dest: /var/lib/tftpboot/efi.cfg/grubx64.efi 
+    - service:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      with_items:
+          "{{ services }}"
+
